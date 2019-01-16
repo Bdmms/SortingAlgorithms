@@ -111,7 +111,7 @@ public class Program
 			case 6:	//Merge
 			System.out.println("Merge Sort");
 			timeStart = System.nanoTime();
-			mergeSort(sortedArray);
+			mergeSort(sortedArray, 0, sortedArray.length - 1);
 			timeEnd = System.nanoTime();
 			break;
 			
@@ -382,77 +382,67 @@ public class Program
 	}
 	
 	//Merge Sort - The sorting is broken up into small parts, each
-	//part is then merged, which is a more efficient sort. This
-	//implementation is limited  as it requires the size of the array
-	//to be a power of 2. However, it benefits from a small performance
-	//boost because of that.
-	public void mergeSort(int[] array)
+	//part is then merged, which is a more efficient sort.
+	public void mergeSort(int[] a, int l, int r)
 	{
-		int temp = 0;
-		int left = 0;
-		int right = 0;
-		int end = 0;
-		int divisionSize = 2;
-		int numDivision = array.length/divisionSize;
-		int d = 0;
-		int p = 0;
-		
-		//The number of division determines when array stops
-		do
+		//Recursively split array into parts until it compares two elements
+		if(l < r)
 		{
-			//Each division is sorted
-			for(d = 0; d < numDivision; d++)
-			{
-				left = divisionSize*d;
-				right = left + divisionSize/2;
-				end = left + divisionSize;
-				
-				//The boundaries of the division define the length
-				for(; left < right & right < end; left++)
-				{
-					//If elements are not sorted
-					if(array[left] > array[right])
-					{
-						temp = array[right];
-						
-						for(p = right; p > left; p--)
-							array[p] = array[p - 1];
-						
-						array[left] = temp;
-						right++;
-					}
-				}
-			}
-			
-			divisionSize *= 2;
-			numDivision = array.length/divisionSize;
-		}while(numDivision > 0);
-	}
-	
-	//Array is shifted forward with temp substituted - Would be used by insertion sort
-	public void pushForwardArray(int[] array, int start, int end, int temp)
-	{
-		end--;
-		for(int i = end; i >= start; i--)
-		{
-			array[i+1] = array[i];
+			int m = (l+r)/2;
+			mergeSort(a, l, m);
+			mergeSort(a, m + 1, r);
+			merge(a, l, m, r);
 		}
-		array[start] = temp;
 	}
 	
-	//An example of how merging is performed
-	public void mergeStack(int[] array, int left, int right, int size)
+	//The merging algorithm for the array
+	public void merge(int[] a, int l, int m, int r)
 	{
-		for(int i = 0; i < size; i++)
+		int n1 = m - l + 1;
+		int n2 = r - m;
+		
+		int l1 = 0;
+		int l2 = 0;
+		int[] LA = new int[n1];
+		int[] RA = new int[n2];
+		
+		//Copy array elements over
+		for(r = 0; r < n1; r++)
+			LA[r] = a[l+r];
+		for(r = 0; r < n2; r++)
+			RA[r] = a[m+r+1];
+		
+		//Merge the two arrays into the main array
+		while(l1 < n1 && l2 < n2)
 		{
-			if(array[left] < array[right])
+			if(LA[l1] <= RA[l2])
 			{
-				pushForwardArray(array, i, left, array[left]);
+				a[l] = LA[l1];
+				l1++;
 			}
 			else
 			{
-				pushForwardArray(array, i, right, array[right]);
+				a[l] = RA[l2];
+				l2++;
 			}
+			l++;
+		}
+		
+		//Fill leftover in 1st array
+		while(l1 < n1)
+		{
+			a[l] = LA[l1];
+			l1++;
+			l++;
+		}
+		
+		//Fill leftover in 2nd array
+		while(l2 < n2)
+		{
+			a[l] = RA[l2];
+			l2++;
+			l++;
 		}
 	}
 }
+
